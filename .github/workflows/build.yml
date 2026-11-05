@@ -1,0 +1,47 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 配置
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: 编译
+        run: cmake --build build
+
+      - name: 运行程序（Unix）
+        if: runner.os != 'Windows'
+        run: ./build/complex_demo
+
+      - name: 运行程序（Windows）
+        if: runner.os == 'Windows'
+        run: ./build/complex_demo.exe
+
+      - name: 接口自测
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then ./build/complex_test.exe; else ./build/complex_test; fi
+
+      - name: 检查输出是否正确
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then OUT=$(./build/complex_demo.exe); else OUT=$(./build/complex_demo); fi
+          echo "$OUT"
+          echo "$OUT" | grep -F "a + b = 4 + 6i"
+          echo "$OUT" | grep -F "a - b = 2 + 2i"
+          echo "$OUT" | grep -F "= 9 + 11i"
+          echo "$OUT" | grep -F "a 的实部 = 3"

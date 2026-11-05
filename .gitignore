@@ -1,0 +1,25 @@
+# 构建产物
+build/
+cmake-build-*/
+
+# 可执行文件与中间文件
+*.exe
+*.o
+*.obj
+*.out
+a.out
+complex_test
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# 评分输出
+scores.csv
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+*.swp
